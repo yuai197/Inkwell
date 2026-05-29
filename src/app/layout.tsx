@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "README AI — Generate docs from your GitHub repo",
-  description: "AI-powered README generator for developers. Paste a GitHub URL and get a professional README in seconds.",
+  title: "Inkwell — Dip in, let AI tell your code's story",
+  description: "Drop a GitHub link into the inkwell. AI crafts a beautiful README for your project in seconds.",
 };
 
 export default function RootLayout({

@@ -44,9 +44,9 @@ export default function Home() {
   return (
     <main className="flex-1 flex flex-col items-center px-4 py-16 max-w-3xl mx-auto w-full">
       {/* Header */}
-      <h1 className="text-4xl font-bold tracking-tight mb-2">README AI</h1>
+      <h1 className="text-4xl font-bold tracking-tight mb-2">Inkwell</h1>
       <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">
-        Paste a GitHub repo URL, get a professional README in seconds.
+        Dip into the inkwell. Paste a GitHub link, let AI craft your story.
       </p>
 
       {/* Input */}
@@ -56,7 +56,7 @@ export default function Home() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && generate()}
-          placeholder="https://github.com/owner/repo"
+          placeholder="https://github.com/owner/repo — dip it in"
           className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
         <button
@@ -89,7 +89,7 @@ export default function Home() {
       {readme && (
         <div className="w-full">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500">Generated README.md</span>
+            <span className="text-sm text-gray-500">Fresh from the inkwell</span>
             <button
               onClick={handleCopy}
               className="text-sm px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
@@ -109,7 +109,7 @@ export default function Home() {
           <svg className="w-10 h-10 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-sm">Your generated README will appear here</p>
+          <p className="text-sm">Your README will flow out here</p>
         </div>
       )}
     </main>
