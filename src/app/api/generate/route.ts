@@ -13,6 +13,81 @@ function getClient(): OpenAI {
   return _client;
 }
 
+const FILES_TO_FETCH = [
+  "package.json",
+  "README.md",
+  "tsconfig.json",
+  "requirements.txt",
+  "Cargo.toml",
+  "go.mod",
+  "pyproject.toml",
+  "Gemfile",
+  "CMakeLists.txt",
+  "Makefile",
+  "build.gradle",
+  "pom.xml",
+  "composer.json",
+  "Dockerfile",
+  "docker-compose.yml",
+];
+
+async function fetchRepoFiles(owner: string, repo: string): Promise<Record<string, string>> {
+  const files: Record<string, string> = {};
+
+  // Try main first, then master
+  for (const branch of ["main", "master"]) {
+    for (const file of FILES_TO_FETCH) {
+      if (files[file]) continue;
+      try {
+        const res = await fetch(
+          `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`
+        );
+        if (res.ok) {
+          files[file] = await res.text();
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    // If we found at least one config file, stop trying branches
+    const hasConfig = FILES_TO_FETCH.some(
+      (f) => f !== "README.md" && files[f]
+    );
+    if (hasConfig) break;
+  }
+
+  // Fallback: try GitHub API to discover project structure
+  if (Object.keys(files).length <= 1) {
+    try {
+      const apiRes = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents`,
+        { headers: { Accept: "application/vnd.github.v3+json" } }
+      );
+      if (apiRes.ok) {
+        const contents: { name: string; type: string }[] = await apiRes.json();
+        const configFiles = contents.filter(
+          (c) => c.type === "file" && FILES_TO_FETCH.includes(c.name)
+        );
+        for (const cf of configFiles) {
+          if (!files[cf.name]) {
+            const fileRes = await fetch(
+              `https://raw.githubusercontent.com/${owner}/${repo}/main/${cf.name}`
+            );
+            if (fileRes.ok) {
+              files[cf.name] = await fileRes.text();
+            }
+          }
+        }
+      }
+    } catch {
+      // API fallback failed, continue with whatever we have
+    }
+  }
+
+  return files;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { githubUrl } = await req.json();
@@ -21,7 +96,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "GitHub URL is required" }, { status: 400 });
     }
 
-    // Parse owner/repo from URL
     const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
     if (!match) {
       return NextResponse.json({ error: "Invalid GitHub URL" }, { status: 400 });
@@ -30,36 +104,15 @@ export async function POST(req: NextRequest) {
     const owner = match[1];
     const repo = match[2].replace(/\.git$/, "");
 
-    // Fetch repo files
-    const files: Record<string, string> = {};
+    const files = await fetchRepoFiles(owner, repo);
 
-    const filesToFetch = [
-      "package.json",
-      "README.md",
-      "tsconfig.json",
-      "requirements.txt",
-      "Cargo.toml",
-      "go.mod",
-      "pyproject.toml",
-      "Gemfile",
-    ];
+    const hasConfig = FILES_TO_FETCH.some(
+      (f) => f !== "README.md" && f !== "Dockerfile" && f !== "docker-compose.yml" && f !== "Makefile" && files[f]
+    );
 
-    for (const file of filesToFetch) {
-      try {
-        const res = await fetch(
-          `https://raw.githubusercontent.com/${owner}/${repo}/main/${file}`
-        );
-        if (res.ok) {
-          files[file] = await res.text();
-        }
-      } catch {
-        // File doesn't exist on main branch, skip
-      }
-    }
-
-    if (!files["package.json"] && !files["requirements.txt"] && !files["go.mod"] && !files["Cargo.toml"]) {
+    if (!hasConfig) {
       return NextResponse.json(
-        { error: "Could not find any recognizable project files in the repo" },
+        { error: "Could not find any recognizable project files in this repo" },
         { status: 400 }
       );
     }

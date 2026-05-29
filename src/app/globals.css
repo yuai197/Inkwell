@@ -24,3 +24,25 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.markdown-body h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+.markdown-body h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+.markdown-body h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+.markdown-body p { margin-bottom: 0.75rem; }
+.markdown-body ul, .markdown-body ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+.markdown-body li { margin-bottom: 0.25rem; }
+.markdown-body code { background: rgba(0,0,0,0.06); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+.markdown-body pre { background: rgba(0,0,0,0.04); padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 0.75rem; }
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; }
+.markdown-body th, .markdown-body td { border: 1px solid rgba(0,0,0,0.1); padding: 0.5rem 0.75rem; text-align: left; }
+.markdown-body th { background: rgba(0,0,0,0.03); font-weight: 600; }
+.markdown-body blockquote { border-left: 3px solid rgba(0,0,0,0.15); padding-left: 1rem; color: rgba(0,0,0,0.5); margin-bottom: 0.75rem; }
+
+@media (prefers-color-scheme: dark) {
+  .markdown-body code { background: rgba(255,255,255,0.08); }
+  .markdown-body pre { background: rgba(255,255,255,0.04); }
+  .markdown-body th, .markdown-body td { border-color: rgba(255,255,255,0.1); }
+  .markdown-body th { background: rgba(255,255,255,0.03); }
+  .markdown-body blockquote { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); }
+}
