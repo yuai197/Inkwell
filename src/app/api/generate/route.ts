@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY || "",
-  baseURL: "https://api.deepseek.com",
-});
+let _client: OpenAI | null = null;
+
+function getClient(): OpenAI {
+  if (!_client) {
+    _client = new OpenAI({
+      apiKey: process.env.DEEPSEEK_API_KEY || "",
+      baseURL: "https://api.deepseek.com",
+    });
+  }
+  return _client;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,7 +81,7 @@ ${fileContents}
 
 Generate the README now:`;
 
-    const completion = await client.chat.completions.create({
+    const completion = await getClient().chat.completions.create({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: "You are a technical writer specializing in open-source documentation." },
