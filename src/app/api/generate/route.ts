@@ -90,11 +90,22 @@ async function fetchRepoFiles(owner: string, repo: string): Promise<Record<strin
 
 export async function POST(req: NextRequest) {
   try {
-    const { githubUrl } = await req.json();
+    const { githubUrl, lang } = await req.json();
 
     if (!githubUrl || typeof githubUrl !== "string") {
       return NextResponse.json({ error: "GitHub URL is required" }, { status: 400 });
     }
+
+    const langName: Record<string, string> = {
+      en: "English",
+      zh: "Simplified Chinese (简体中文)",
+      ja: "Japanese (日本語)",
+      ko: "Korean (한국어)",
+      es: "Spanish (Español)",
+      fr: "French (Français)",
+      pt: "Portuguese (Português)",
+    };
+    const targetLang = langName[lang] || "English";
 
     const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
     if (!match) {
@@ -121,18 +132,19 @@ export async function POST(req: NextRequest) {
       .map(([name, content]) => `=== ${name} ===\n${content.slice(0, 3000)}`)
       .join("\n\n");
 
-    const prompt = `You are a README generator for open-source projects. Based on the following project files, generate a professional, well-structured README.md in English.
+    const prompt = `You are a README generator for open-source projects. Based on the following project files, generate a professional, well-structured README.md in ${targetLang}.
 
 Requirements:
 - Use Markdown format
 - Include: project title, description, features, installation, usage, tech stack
 - Keep it concise and professional
 - If there's an existing README, improve upon it
+- Write ALL content in ${targetLang}
 
 Project files:
 ${fileContents}
 
-Generate the README now:`;
+Generate the README now in ${targetLang}:`;
 
     const completion = await getClient().chat.completions.create({
       model: "deepseek-chat",

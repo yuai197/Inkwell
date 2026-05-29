@@ -64,6 +64,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [preview, setPreview] = useState(true);
+  const [lang, setLang] = useState("en");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [remaining, setRemaining] = useState(() => {
     const u = getUsage();
@@ -108,7 +109,7 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ githubUrl: url }),
+        body: JSON.stringify({ githubUrl: url, lang }),
       });
 
       const data = await res.json();
@@ -155,6 +156,19 @@ export default function Home() {
           placeholder="https://github.com/owner/repo — dip it in"
           className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          className="px-3 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"
+        >
+          <option value="en">EN</option>
+          <option value="zh">中文</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="es">ES</option>
+          <option value="fr">FR</option>
+          <option value="pt">PT</option>
+        </select>
         <button
           onClick={generate}
           disabled={loading || !url.trim() || remaining <= 0}
